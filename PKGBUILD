@@ -13,8 +13,8 @@ pkgdesc="NUT is a collection of programs for monitoring and administering UPS ha
 arch=('i686' 'x86_64')
 url="http://www.networkupstools.org/"
 license=('GPL2')
-depends=('openssl' 'libusb-compat' 'net-snmp')
-optdepends=('avahi' 'logrotate')
+depends=('openssl' 'libusb-compat' 'net-snmp' 'desktop-file-utils')
+optdepends=('avahi' 'logrotate' 'python2: for nut-monitor gui')
 makedepends=('avahi' 'logrotate')
 conflicts=('network-ups-tools')
 replaces=('network-ups-tools')
@@ -28,6 +28,12 @@ md5sums=('e6eac4fa04baff0d0a827d64efe81a7e')
 build() {
 
   cd $srcdir/nut-$pkgver
+
+  # Nut-monitor to lowercase
+  sed -i 's|=NUT-Monitor|=nut-monitor|' scripts/python/app/nut-monitor.desktop
+  sed -i "s|sys.argv\[0\]|'/usr/share/nut/nut-monitor/nut-monitor'|" scripts/python/app/NUT-Monitor
+  sed -i 's|/usr/bin/env python|/usr/bin/env python2.7|' scripts/python/app/NUT-Monitor
+
   ./configure \
     --without-wrap \
     --with-user=ups \
@@ -63,5 +69,15 @@ package() {
   install -D -m644 scripts/avahi/nut.service $pkgdir/etc/avahi/services/network-ups-tools.service
   install -D -m644 scripts/logrotate/nutlogd $pkgdir/etc/logrotate.d/network-ups-tools
   install -D -m755 scripts/misc/nut.bash_completion $pkgdir/etc/bash_completion.d/network-ups-tools
+
+  # Nut-monitor GUI
+  install -D -m644 scripts/python/module/PyNUT.py $pkgdir/usr/lib/python2.7/site-packages/PyNUT.py
+  mkdir -p $pkgdir/usr/share/nut/nut-monitor/pixmaps
+  install -m 755 scripts/python/app/NUT-Monitor $pkgdir/usr/share/nut/nut-monitor/nut-monitor
+  install -m 644 scripts/python/app/gui-1.3.glade $pkgdir/usr/share/nut/nut-monitor
+  install -m 644 scripts/python/app/pixmaps/* $pkgdir/usr/share/nut/nut-monitor/pixmaps/
+  install -D scripts/python/app/nut-monitor.png $pkgdir/usr/share/pixmaps/nut-monitor.png
+  desktop-file-install --dir=$pkgdir/usr/share/applications scripts/python/app/nut-monitor.desktop
+  ln -s /usr/share/nut/nut-monitor/nut-monitor $pkgdir/usr/bin/nut-monitor
 
 }
