@@ -4,10 +4,11 @@
 # Maintainer: Alex Reznichenko <sa5gap@yandex.ru>
 # Contributor: Roman Kyrylych <roman@archlinux.org>
 # Contributor: Giuseppe Lucarelli <luk@rebelsoft.org>
+# Contributor: Raphaël Doursenaud <rdoursenaud@free.fr>
 
 pkgname=network-ups-tools-full
 pkgver=2.6.5
-pkgrel=5
+pkgrel=6
 pkgdesc="NUT is a collection of programs for monitoring and administering UPS hardware (with SNMP, development files, avahi, logrotate, and bash completion support)"
 arch=('i686' 'x86_64')
 url="http://www.networkupstools.org/"
@@ -20,11 +21,9 @@ replaces=('network-ups-tools')
 provides=('network-ups-tools')
 backup=(etc/ups/{ups.conf,upsd.conf,upsd.users,upsmon.conf,upssched.conf})
 install=nut.install
-source=("http://www.networkupstools.org/source/2.6/nut-$pkgver.tar.gz"
-		'upsd.init')
+source=('http://www.networkupstools.org/source/2.6/nut-$pkgver.tar.gz')
 options=('!emptydirs' '!libtool')
-md5sums=('e6eac4fa04baff0d0a827d64efe81a7e'
-         '089ea4a56552253328d17603ff5670cc')
+md5sums=('e6eac4fa04baff0d0a827d64efe81a7e')
 
 build() {
 
@@ -56,7 +55,6 @@ package() {
   cd $srcdir/nut-$pkgver
   make DESTDIR=$pkgdir install || return 1
 
-  install -D -m755 $startdir/upsd.init $pkgdir/etc/rc.d/upsd || return 1
   install -D -m644 conf/ups.conf.sample $pkgdir/etc/ups/ups.conf
   install -D -m640 conf/upsd.conf.sample $pkgdir/etc/ups/upsd.conf
   install -D -m640 conf/upsd.users.sample $pkgdir/etc/ups/upsd.users
